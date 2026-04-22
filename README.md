@@ -99,6 +99,25 @@ Each line: `n isLeaf k0 k1 ... k(n-1)` where `n` = number of keys, `isLeaf` = 1 
 ---
 
 ## Implementation Details
+### Duplicate Key Handling
+This implementation **allows duplicate keys**. The insertion logic uses a
+strict greater-than comparison (`keys[i] > k`) when searching for the correct
+position, so a duplicate is always routed to the **right of the existing equal
+key** and inserted there. All copies are stored and will appear in traversal output.
+
+The tree remains **structurally balanced** even with duplicates — splits
+triggered by full nodes behave identically regardless of whether keys repeat.
+
+Example — inserting `10 10 10 10`:
+- After 3 inserts: root holds `[10 10 10]` (full)
+- On 4th insert: root splits, median `10` is promoted, duplicates spread across child nodes
+- Tree stays balanced at height 2
+
+**To reject duplicates instead**, add this check at the top of `insertNonFull`:
+if (leaf) {
+    for (int j = 0; j < n; j++)
+        if (keys[j] == k) return; // silently ignore duplicate
+}
 
 ### `BTreeNode`
 - Stores keys in `int keys[2t-1]` and children in `BTreeNode* children[2t]`
